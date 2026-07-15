@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shorts Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="hero card">
+      <div>
+        <p class="eyebrow">Application web complète</p>
+        <h1>Shorts Studio</h1>
+        <p class="lead">
+          Transforme <strong>tes propres vidéos</strong> en format vertical 9:16 avec
+          transcription Whisper, sous-titres stylés et export prêt pour TikTok, Reels ou Shorts.
+        </p>
+      </div>
+      <div class="hero-badge">
+        <span>100 % local</span>
+        <span>FastAPI + FFmpeg</span>
+        <span>Whisper</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <section class="card">
+        <div class="section-head">
+          <h2>1. Charger la vidéo</h2>
+          <p>Utilise uniquement du contenu dont tu possèdes les droits.</p>
+        </div>
+
+        <form id="process-form" class="form">
+          <label class="field upload-field">
+            <span>Vidéo source</span>
+            <input id="video" name="video" type="file" accept="video/*" required />
+            <small>Formats : mp4, mov, mkv, webm — max 500 MB</small>
+          </label>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Langue</span>
+              <select name="language" id="language">
+                <option value="fr">Français</option>
+                <option value="en">Anglais</option>
+                <option value="es">Espagnol</option>
+                <option value="pt">Portugais</option>
+                <option value="de">Allemand</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Modèle Whisper</span>
+              <select name="whisper_model" id="whisper_model">
+                <option value="tiny">tiny (plus rapide)</option>
+                <option value="base" selected>base</option>
+                <option value="small">small</option>
+                <option value="medium">medium</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Style de sous-titres</span>
+            <select name="subtitle_style" id="subtitle_style">
+              <option value="classic">Blanc classique</option>
+              <option value="yellow">Jaune impact</option>
+              <option value="bold">Gras fond sombre</option>
+            </select>
+          </label>
+
+          <div class="highlight-box">
+            <label class="checkbox-row" for="auto_highlight">
+              <input id="auto_highlight" name="auto_highlight" type="checkbox" value="true" />
+              <span>Découper automatiquement le meilleur moment</span>
+            </label>
+            <p>
+              Le système choisit une séquence plus dense en parole à partir des sous-titres,
+              puis exporte seulement cet extrait.
+            </p>
+            <label class="field compact">
+              <span>Durée cible de l'extrait</span>
+              <input id="highlight_duration" name="highlight_duration" type="number" min="10" max="90" value="30" />
+              <small>Entre 10 et 90 secondes.</small>
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Texte de narration optionnel</span>
+            <textarea
+              id="narration_text"
+              name="narration_text"
+              rows="4"
+              placeholder="Laisse vide si tu veux conserver uniquement l'audio d'origine. Si tu remplis ce champ, l'application attend Piper TTS installé sur le serveur."
+            ></textarea>
+          </label>
+
+          <div class="legal-box">
+            <input id="rights" type="checkbox" required />
+            <label for="rights">Je confirme avoir les droits d'utilisation de cette vidéo.</label>
+          </div>
+
+          <button id="submit-btn" class="btn primary" type="submit">Générer la vidéo</button>
+        </form>
+      </section>
+
+      <aside class="card sidebar">
+        <div class="section-head">
+          <h2>2. État du système</h2>
+          <p>Les dépendances locales doivent être présentes.</p>
+        </div>
+        <ul id="tools-list" class="tool-list">
+          <li>Vérification…</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <div class="section-head">
+          <h2>3. Résultat</h2>
+          <p>Le statut du traitement s'affiche ici.</p>
+        </div>
+        <div id="status-card" class="status waiting">
+          <p class="status-label">En attente d'un traitement</p>
+          <div class="progress-bar"><span id="progress-bar-fill"></span></div>
+          <p id="status-step" class="status-step">Aucun job en cours.</p>
+          <p id="status-error" class="status-error hidden"></p>
+        </div>
+
+        <p id="highlight-info" class="highlight-info hidden"></p>
+        <div id="result-actions" class="result-actions hidden">
+          <a id="download-video" class="btn success" href="#">Télécharger la vidéo finale</a>
+          <a id="download-subtitle" class="btn secondary" href="#">Télécharger le .srt</a>
+        </div>
+      </aside>
+    </section>
+
+    <section class="card steps">
+      <div class="section-head">
+        <h2>Comment ça marche</h2>
+      </div>
+      <div class="steps-grid">
+        <article>
+          <strong>1</strong>
+          <h3>Upload</h3>
+          <p>La vidéo est envoyée au backend FastAPI.</p>
+        </article>
+        <article>
+          <strong>2</strong>
+          <h3>Transcription</h3>
+          <p>Whisper extrait le texte et génère un fichier SRT.</p>
+        </article>
+        <article>
+          <strong>3</strong>
+          <h3>Reformatage</h3>
+          <p>FFmpeg convertit le contenu en vertical 1080x1920.</p>
+        </article>
+        <article>
+          <strong>4</strong>
+          <h3>Export</h3>
+          <p>Le système incruste les sous-titres et fabrique la vidéo finale.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

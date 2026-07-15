@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+app_data/uploads/
+app_data/jobs/
+app_data/outputs/
+app_data/audio/
+app_data/subtitles/
